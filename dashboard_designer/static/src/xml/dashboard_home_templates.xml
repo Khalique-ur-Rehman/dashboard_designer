@@ -1,0 +1,204 @@
+<templates xml:space="preserve">
+    <t t-name="dashboard_designer.DashboardHome">
+        <div class="o_dashboard_home">
+            <!-- Header with welcome message and action button -->
+            <div class="o_dashboard_home_header">
+                <div class="header_left">
+                    <h1 class="welcome_title">Welcome <t t-esc="userName or 'User'"/></h1>
+                </div>
+                <div class="header_right">
+                    <div class="filter_dropdown">
+                        <button class="dropdown_trigger">
+                            <t t-if="state.filter === 'all'">All Dashboards</t>
+                            <t t-elif="state.filter === 'bookmarked'">Bookmarked</t>
+                            <span class="dropdown_icon">▼</span>
+                        </button>
+                        <div class="dropdown_menu">
+                            <a href="#" t-on-click.prevent="() => this.setFilter('all')">All Dashboards</a>
+                            <a href="#" t-on-click.prevent="() => this.setFilter('bookmarked')">Bookmarked</a>
+                        </div>
+                    </div>
+                    <button class="btn_add_dashboard" t-on-click="() => this.onAddNewDashboard()">
+                        <span class="plus_icon">⊕</span> Add New Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top KPI tiles with icons -->
+            <div class="o_dashboard_home_kpis">
+                <div class="kpi_tile pink" t-on-click="() => this.setFilter('all')">
+                    <div class="kpi_content">
+                        <div class="kpi_text">
+                            <span class="kpi_value">
+                                <t t-esc="state.counts.all_dashboards or 0"/>
+                            </span>
+                            <span class="kpi_label">All Dashboards</span>
+                        </div>
+                        <div class="kpi_icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi_tile yellow">
+                    <div class="kpi_content">
+                        <div class="kpi_text">
+                            <span class="kpi_value">
+                                <t t-esc="state.counts.all_charts or 0"/>
+                            </span>
+                            <span class="kpi_label">All Charts</span>
+                        </div>
+                        <div class="kpi_icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <path d="M3 9h18M9 21V9"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi_tile green">
+                    <div class="kpi_content">
+                        <div class="kpi_text">
+                            <span class="kpi_value">
+                                <t t-esc="state.counts.all_kpis or 0"/>
+                            </span>
+                            <span class="kpi_label">Total Maps</span>
+                        </div>
+                        <div class="kpi_icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/>
+                                <path d="M9 3v15M15 6v15"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi_tile purple" t-on-click="() => this.setFilter('bookmarked')">
+                    <div class="kpi_content">
+                        <div class="kpi_text">
+                            <span class="kpi_value">
+                                <t t-esc="state.counts.bookmarked_dashboards or 0"/>
+                            </span>
+                            <span class="kpi_label">Bookmarked Dashboards</span>
+                        </div>
+                        <div class="kpi_icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi_tile blue">
+                    <div class="kpi_content">
+                        <div class="kpi_text">
+                            <span class="kpi_value">
+                                <t t-esc="state.counts.all_lists or 0"/>
+                            </span>
+                            <span class="kpi_label">All Lists</span>
+                        </div>
+                        <div class="kpi_icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <line x1="8" y1="6" x2="21" y2="6"/>
+                                <line x1="8" y1="12" x2="21" y2="12"/>
+                                <line x1="8" y1="18" x2="21" y2="18"/>
+                                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                                <line x1="3" y1="18" x2="3.01" y2="18"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body: dashboard cards -->
+            <t t-if="state.loading">
+                <div class="o_dashboard_home_loading">
+                    <div class="spinner"></div>
+                    <p>Loading dashboards...</p>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-if="filteredDashboards.length">
+                    <div class="o_dashboard_home_cards">
+                        <t t-foreach="filteredDashboards" t-as="dash" t-key="dash.id">
+                            <div class="dash_card">
+                                <div class="dash_card_preview">
+                                    <t t-if="dash.preview_image">
+                                        <img t-att-src="dash.preview_image" alt="Dashboard preview"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="preview_placeholder">
+                                            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                            </svg>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <div class="dash_card_content">
+                                    <div class="dash_card_header">
+                                        <h3 class="dash_title"><t t-esc="dash.name"/></h3>
+                                        <div class="dash_actions">
+                                            <button class="action_btn bookmark_btn"
+                                                    t-att-class="dash.is_bookmarked ? 'bookmarked' : ''"
+                                                    t-on-click="() => this.onToggleBookmark(dash)"
+                                                    title="Bookmark">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                                                </svg>
+                                            </button>
+                                            <button class="action_btn lock_btn" title="Lock">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="dash_card_body">
+                                        <p class="dash_stats">
+                                            <t t-esc="dash.chart_count or 0"/> Charts
+                                        </p>
+                                    </div>
+
+                                    <div class="dash_card_footer">
+                                        <a href="#" class="view_link" t-on-click.prevent="() => this.onOpenDashboard(dash)">
+                                            View Dashboard ›
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="o_dashboard_home_empty">
+                        <div class="empty_icon">
+                            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                        </div>
+                        <h3>No dashboards found</h3>
+                        <p>Create your first dashboard to get started</p>
+                        <button class="btn_create" t-on-click="() => this.onAddNewDashboard()">
+                            Create Dashboard
+                        </button>
+                    </div>
+                </t>
+            </t>
+        </div>
+    </t>
+</templates>

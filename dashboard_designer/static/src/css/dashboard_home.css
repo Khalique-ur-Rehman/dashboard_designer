@@ -1,0 +1,483 @@
+/* Dashboard Home Enhanced Styles */
+
+.o_dashboard_home {
+    padding: 32px 48px;
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.o_dashboard_home_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.header_left .welcome_title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.header_right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+/* Dropdown Filter */
+.filter_dropdown {
+    position: relative;
+}
+
+.dropdown_trigger {
+    padding: 10px 20px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.dropdown_trigger:hover {
+    border-color: #c0c0c0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.dropdown_icon {
+    font-size: 10px;
+    opacity: 0.6;
+}
+
+.dropdown_menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    min-width: 180px;
+    display: none;
+    z-index: 100;
+}
+
+.filter_dropdown:hover .dropdown_menu {
+    display: block;
+}
+
+.dropdown_menu a {
+    display: block;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.dropdown_menu a:hover {
+    background: #f5f5f5;
+}
+
+.dropdown_menu a:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+.dropdown_menu a:last-child {
+    border-radius: 0 0 8px 8px;
+}
+
+/* Add Dashboard Button */
+.btn_add_dashboard {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #ff4757 0%, #ff6b7a 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+.btn_add_dashboard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+}
+
+.plus_icon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* ===== KPI TILES ===== */
+.o_dashboard_home_kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.kpi_tile {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.kpi_tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: currentColor;
+}
+
+.kpi_tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.kpi_tile:active {
+    transform: translateY(-2px);
+}
+
+.kpi_content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kpi_text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.kpi_value {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1;
+}
+
+.kpi_label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.kpi_icon {
+    opacity: 0.4;
+}
+
+.kpi_icon svg {
+    stroke-width: 1.5;
+}
+
+/* KPI Color Themes */
+.kpi_tile.pink {
+    color: #ff4757;
+}
+
+.kpi_tile.yellow {
+    color: #ffa502;
+}
+
+.kpi_tile.green {
+    color: #2ed573;
+}
+
+.kpi_tile.purple {
+    color: #a55eea;
+}
+
+.kpi_tile.blue {
+    color: #3742fa;
+}
+
+/* ===== DASHBOARD CARDS ===== */
+.o_dashboard_home_cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+    padding-bottom: 40px;
+}
+
+.dash_card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+/* Card Preview */
+.dash_card_preview {
+    width: 100%;
+    height: 180px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #f3f4f6;
+    position: relative;
+    padding: 16px;
+}
+
+.dash_card_preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.preview_placeholder {
+    color: #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: #fafafa;
+}
+
+.preview_placeholder svg {
+    width: 80px;
+    height: 80px;
+    stroke-width: 1.5;
+    opacity: 1;
+}
+
+/* Card Content */
+.dash_card_content {
+    padding: 16px 20px;
+}
+
+.dash_card_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.dash_title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.dash_actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.action_btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #6b7280;
+}
+
+.action_btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.action_btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+
+.bookmark_btn.bookmarked {
+    color: #3b82f6;
+}
+
+.bookmark_btn.bookmarked svg {
+    fill: #3b82f6;
+}
+
+/* Card Body */
+.dash_card_body {
+    margin-bottom: 12px;
+    min-height: 18px;
+}
+
+.dash_stats {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Card Footer */
+.dash_card_footer {
+    padding-top: 12px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.view_link {
+    color: #ef4444;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.view_link:hover {
+    gap: 8px;
+    color: #dc2626;
+}
+
+/* ===== LOADING STATE ===== */
+.o_dashboard_home_loading {
+    text-align: center;
+    padding: 80px 20px;
+    color: #999;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f0f0f0;
+    border-top-color: #ff4757;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== EMPTY STATE ===== */
+.o_dashboard_home_empty {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 16px;
+    margin: 40px auto;
+    max-width: 500px;
+}
+
+.empty_icon {
+    color: #e0e0e0;
+    margin-bottom: 24px;
+}
+
+.o_dashboard_home_empty h3 {
+    font-size: 24px;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+.o_dashboard_home_empty p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 32px 0;
+}
+
+.btn_create {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #ff4757 0%, #ff6b7a 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+.btn_create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+    .o_dashboard_home_kpis {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .o_dashboard_home_cards {
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .o_dashboard_home {
+        padding: 20px;
+    }
+
+    .o_dashboard_home_header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .header_right {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .btn_add_dashboard,
+    .dropdown_trigger {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .o_dashboard_home_kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .o_dashboard_home_cards {
+        grid-template-columns: 1fr;
+    }
+}

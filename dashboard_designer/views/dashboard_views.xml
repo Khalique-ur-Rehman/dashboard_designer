@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main action: Gallery (kanban) + list + form -->
+    <record id="action_dashboard_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboards</field>
+        <field name="res_model">dashboard.dashboard</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p>Manage and design your dashboards.</p>
+        </field>
+    </record>
+
+    <!-- Client action definition for OWL Studio (tag used by JS) -->
+    <record id="action_dashboard_studio" model="ir.actions.client">
+        <field name="name">Dashboard Studio</field>
+        <field name="tag">dashboard_studio</field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem
+        id="menu_dashboard_root"
+        name="Dashboard Designer"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_dashboard_dashboard"
+        name="Dashboards"
+        parent="menu_dashboard_root"
+        action="action_dashboard_dashboard"
+        sequence="10"
+    />
+
+    <!-- Enhanced Kanban: Dashboard Gallery -->
+    <record id="view_dashboard_kanban" model="ir.ui.view">
+        <field name="name">dashboard.dashboard.kanban</field>
+        <field name="model">dashboard.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="subtitle"/>
+                <field name="theme"/>
+                <field name="widget_count"/>
+                <field name="write_date"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click" style="border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: all 0.3s ease; padding: 24px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); position: relative; overflow: hidden;">
+                            <!-- Decorative gradient overlay -->
+                            <div style="position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+
+                            <div class="o_kanban_primary" style="position: relative; z-index: 1;">
+                                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                                        <span style="color: white; font-size: 20px; font-weight: 700;">📊</span>
+                                    </div>
+                                    <strong style="font-size: 18px; color: #1e293b; font-weight: 700; flex: 1;">
+                                        <t t-esc="record.name.value"/>
+                                    </strong>
+                                </div>
+                                <div style="margin-bottom: 16px; color: #64748b; font-size: 14px; line-height: 1.6; min-height: 42px;">
+                                    <span t-esc="record.subtitle.value or 'No description'"/>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                                    <span t-if="record.widget_count.value" style="padding: 6px 12px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; font-weight: 600; font-size: 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #93c5fd;">
+                                        <span style="font-size: 14px;">📈</span>
+                                        <t t-esc="record.widget_count.value"/> widget<t t-if="record.widget_count.value != 1">s</t>
+                                    </span>
+                                    <span t-if="record.theme.value" style="padding: 6px 12px; background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); color: #6b21a8; font-weight: 600; font-size: 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #c4b5fd;">
+                                        <span style="font-size: 14px;">🎨</span>
+                                        <t t-esc="record.theme.value"/>
+                                    </span>
+                                </div>
+                                <div style="padding-top: 16px; border-top: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 11px; color: #94a3b8; font-weight: 500;">
+                                        Updated: <t t-esc="record.write_date.value or 'Never'"/>
+                                    </span>
+                                    <span style="font-size: 20px; opacity: 0.6;">→</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Dashboard list view -->
+    <record id="view_dashboard_list" model="ir.ui.view">
+        <field name="name">dashboard.dashboard.list</field>
+        <field name="model">dashboard.dashboard</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="subtitle"/>
+                <field name="theme"/>
+                <field name="widget_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Enhanced Dashboard form view with improved Preview -->
+    <record id="view_dashboard_form" model="ir.ui.view">
+        <field name="name">dashboard.dashboard.form</field>
+        <field name="model">dashboard.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard">
+                <header>
+                    <button name="action_open_studio"
+                            type="object"
+                            string="Studio"
+                            class="btn-secondary"/>
+
+                    <button name="action_print_dashboard"
+                            type="object"
+                            string="Print Dashboard"
+                            class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <h1>
+                        <field name="name" nolabel="1"/>
+                    </h1>
+                    <group>
+                        <field name="subtitle"/>
+                    </group>
+                    <group>
+                        <field name="active"/>
+                        <field name="theme"/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+
+                    <notebook>
+                        <!-- Items tab (configuration) -->
+                        <page string="Items">
+                            <field name="item_ids">
+                                <list editable="bottom">
+                                    <field name="sequence"/>
+                                    <field name="name"/>
+                                    <field name="type"/>
+                                    <field name="model_id"/>
+                                    <field name="aggregation"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Enhanced Preview tab with dark theme -->
+                        <page string="Preview">
+                            <div class="o_dash_page o_dash_theme_dark" style="background: linear-gradient(135deg, #1a1d29 0%, #232839 100%); padding: 24px; border-radius: 8px; min-height: 600px;">
+                                <div class="o_dash_header" style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+                                    <div class="o_dash_title_block" style="flex: 1; min-width: 280px;">
+                                        <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 700; color: #ffffff;">
+                                            <field name="name" nolabel="1" readonly="1"/>
+                                        </h1>
+                                        <div class="o_dash_subtitle" style="font-size: 14px; color: #9ca3af; line-height: 1.5;">
+                                            <field name="subtitle" nolabel="1" readonly="1"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="o_dash_header_right">
+                                        <div class="o_dash_range_switch" style="display: flex; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                            <button style="padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: #3b82f6; color: white;" class="is-active">This Term</button>
+                                            <button style="padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: transparent; color: #9ca3af;">This Year</button>
+                                            <button style="padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: transparent; color: #9ca3af;">Custom</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Enhanced Cards (widgets) grid with dark theme -->
+                                <div class="o_dash_cards_row" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                                    <field name="item_ids" mode="kanban" context="{'no_open': True}">
+                                        <kanban>
+                                            <field name="name"/>
+                                            <field name="type"/>
+                                            <field name="value_text"/>
+                                            <field name="color"/>
+                                            <field name="icon"/>
+                                            <field name="text"/>
+                                            <field name="chart_type"/>
+                                            <field name="display_text"/>
+
+                                            <templates>
+                                                <t t-name="kanban-box">
+                                                    <div t-att-class="'oe_kanban_card o_dash_card ' + (record.color.raw_value or '')"
+                                                         style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s ease; min-height: 220px; display: flex; flex-direction: column;">
+
+                                                        <div class="o_dash_card_header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                            <span t-if="record.icon.raw_value"
+                                                                  t-att-class="record.icon.raw_value"
+                                                                  style="font-size: 18px; color: #60a5fa; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(59, 130, 246, 0.15); border-radius: 8px;"/>
+                                                            <strong style="font-size: 14px; font-weight: 600; color: #e5e7eb; flex: 1; text-transform: uppercase; letter-spacing: 0.5px;" t-esc="record.name.value"/>
+                                                        </div>
+
+                                                        <!-- Enhanced KPI with dark theme -->
+                                                        <div t-if="record.type.raw_value == 'kpi'"
+                                                             class="o_dash_kpi_value"
+                                                             style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                                                            <span style="font-size: 52px; font-weight: 700; color: #60a5fa; letter-spacing: -0.02em;" t-esc="record.value_text.value"/>
+                                                        </div>
+
+                                                        <!-- Enhanced Chart placeholder with dark theme -->
+                                                        <div t-if="record.type.raw_value == 'chart'"
+                                                             class="o_dash_card_chart"
+                                                             style="flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(59, 130, 246, 0.1); border-radius: 8px; padding: 20px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                                            <span style="font-size: 14px; color: #93c5fd; font-weight: 500;">
+                                                                <t t-esc="record.chart_type.value or 'Chart'"/> Visualization
+                                                            </span>
+                                                        </div>
+
+                                                        <!-- Enhanced Text with dark theme -->
+                                                        <div t-if="record.display_text.value"
+                                                             class="o_dash_card_text"
+                                                             style="flex: 1; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 13px; color: #d1d5db; line-height: 1.6;">
+                                                            <span t-esc="record.display_text.value"/>
+                                                        </div>
+
+                                                        <!-- Footer info with dark theme -->
+                                                        <div style="margin-top: auto; padding-top: 12px; font-size: 11px; color: #6b7280; text-align: right;">
+                                                            Last updated: Just now
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                            </templates>
+                                        </kanban>
+                                    </field>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Enhanced Dashboard Item form view -->
+    <record id="view_dashboard_item_form" model="ir.ui.view">
+        <field name="name">dashboard.item.form</field>
+        <field name="model">dashboard.item</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Item">
+                <sheet style="background: #fafafa;">
+                    <div style="background: white; padding: 24px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <group>
+                            <field name="dashboard_id"/>
+                            <field name="sequence"/>
+                        </group>
+
+                        <group>
+                            <field name="name"/>
+                            <field name="type"/>
+                        </group>
+                    </div>
+
+                    <div style="background: white; padding: 24px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <group>
+                            <field name="model_id"/>
+                            <field name="measure_field_id"/>
+                            <field name="aggregation"/>
+                            <field name="domain"/>
+                        </group>
+
+                        <group>
+                            <field name="chart_type"/>
+                            <field name="groupby_field_id"/>
+                            <field name="limit"/>
+                        </group>
+                    </div>
+
+                    <div style="background: white; padding: 24px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <group>
+                            <field name="text"/>
+                        </group>
+
+                        <group>
+                            <field name="icon"/>
+                            <field name="color"/>
+                        </group>
+                    </div>
+
+                    <div style="background: #f0fdf4; padding: 24px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                        <group>
+                            <field name="value" readonly="1"/>
+                            <field name="value_text" readonly="1"/>
+                        </group>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Dashboard Item list view -->
+    <record id="view_dashboard_item_list" model="ir.ui.view">
+        <field name="name">dashboard.item.list</field>
+        <field name="model">dashboard.item</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="dashboard_id"/>
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="model_id"/>
+                <field name="aggregation"/>
+                <field name="value_text"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,7 @@
+<templates xml:space="preserve">
+    <t t-name="dashboard_designer.DashboardHome">
+        <div class="o_dashboard_home">
+            <h1>My Dashboard (test)</h1>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,1327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="dashboard_designer.DashboardStudio">
+        <!-- PREVIEW MODE OVERLAY - FULL PAGE -->
+        <t t-if="state.previewMode">
+            <div class="dd_preview_fullscreen_overlay">
+                <div class="dd_preview_hod">
+                    <div class="dd_preview_hod_header">
+                        <div class="dd_preview_hod_title_section">
+                            <div class="dd_preview_hod_icon">🎯</div>
+                            <div>
+                                <h2 class="dd_preview_hod_title">
+                                    <t t-esc="state.dashboard and state.dashboard.name or 'Dashboard'"/>
+                                </h2>
+                                <p class="dd_preview_hod_subtitle">
+                                    <t t-esc="state.dashboard and state.dashboard.subtitle or 'Real-time monitoring interface'"/>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="dd_preview_hod_actions">
+    <button class="dd_preview_hod_btn dd_preview_hod_btn_active">This Term</button>
+    <button class="dd_preview_hod_btn">This Year</button>
+    <button class="dd_preview_hod_btn">Custom</button>
+
+    <!-- PDF as before -->
+    <button class="dd_preview_hod_btn"
+            t-on-click="() => this.downloadPreviewPDF()">
+        📄 PDF
+    </button>
+
+    <!-- New PNG button -->
+    <button class="dd_preview_hod_btn"
+            t-on-click="() => this.exportAsPNG(true)">
+        🖼 PNG
+    </button>
+
+    <button class="dd_preview_hod_btn dd_preview_close_btn"
+            t-on-click="() => this.togglePreview()">
+        ✕ Exit
+    </button>
+</div>
+                    </div>
+
+                    <!-- Widgets Grid in Preview -->
+                    <div class="dd_preview_widgets_grid">
+                        <t t-foreach="state.widgets" t-as="widget" t-key="widget.id">
+                            <div class="dd_preview_widget_card">
+                                <div class="dd_preview_widget_header">
+                                    <h3 class="dd_preview_widget_title"><t t-esc="widget.name"/></h3>
+                                    <span class="dd_preview_widget_type"><t t-esc="widget.type"/></span>
+                                </div>
+
+                                <div class="dd_preview_widget_content">
+                                    <!-- BAR CHART (PREVIEW) -->
+                                    <t t-if="widget.type == 'chart' and widget.chart_type == 'bar'">
+                                        <div class="dd_preview_chart_with_axis">
+                                            <div class="dd_preview_chart_bars">
+                                                <t t-foreach="getWidgetData(widget.id).values" t-as="value" t-key="value_index">
+                                                    <div class="dd_preview_chart_bar"
+                                                         t-att-style="'background: ' + getWidgetStyles(widget.id).chartColor + '; height: ' + value + '%;'">
+                                                        <span class="dd_preview_bar_value"><t t-esc="Math.round(value)"/></span>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="dd_preview_x_axis">
+                                                <t t-foreach="getWidgetStyles(widget.id).xAxisLabels.split(',')" t-as="label" t-key="label_index">
+                                                    <span class="dd_preview_x_label"><t t-esc="label.trim()"/></span>
+                                                </t>
+                                            </div>
+                                            <div class="dd_preview_y_axis">
+                                                <t t-foreach="getYAxisTicks(widget.id)" t-as="tick" t-key="tick_index">
+                                                    <span class="dd_preview_y_label"><t t-esc="tick"/></span>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- LINE CHART (PREVIEW) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'line'">
+                                        <div class="dd_preview_chart_with_axis">
+                                            <div class="dd_preview_chart_line">
+                                                <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                    <line x1="0" y1="15" x2="100" y2="15" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                    <line x1="0" y1="30" x2="100" y2="30" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                    <line x1="0" y1="45" x2="100" y2="45" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                    <polyline t-att-points="getLineChartPoints(widget.id)"
+                                                              fill="none" t-att-stroke="getWidgetStyles(widget.id).chartColor" stroke-width="2"/>
+                                                    <t t-foreach="getLineChartPoints(widget.id).split(' ')" t-as="point" t-key="point_index">
+                                                        <t t-set="coords" t-value="point.split(',')"/>
+                                                        <circle t-att-cx="coords[0]" t-att-cy="coords[1]" r="3" t-att-fill="getWidgetStyles(widget.id).chartColor"/>
+                                                    </t>
+                                                </svg>
+                                            </div>
+                                            <div class="dd_preview_x_axis">
+                                                <t t-foreach="getWidgetStyles(widget.id).xAxisLabels.split(',')" t-as="label" t-key="label_index">
+                                                    <span class="dd_preview_x_label"><t t-esc="label.trim()"/></span>
+                                                </t>
+                                            </div>
+                                            <div class="dd_preview_y_axis">
+                                                <t t-foreach="getYAxisTicks(widget.id)" t-as="tick" t-key="tick_index">
+                                                    <span class="dd_preview_y_label"><t t-esc="tick"/></span>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- SCATTER PLOT (PREVIEW) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'scatter'">
+                                        <div class="dd_preview_chart_with_axis">
+                                            <div class="dd_preview_chart_scatter">
+                                                <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                    <line x1="0" y1="15" x2="100" y2="15" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                    <line x1="0" y1="30" x2="100" y2="30" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                    <line x1="0" y1="45" x2="100" y2="45" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                    <t t-foreach="getScatterPoints(widget.id)" t-as="point" t-key="point_index">
+                                                        <circle t-att-cx="point.x" t-att-cy="point.y" r="3"
+                                                                t-att-fill="getWidgetStyles(widget.id).chartColor"/>
+                                                    </t>
+                                                </svg>
+                                            </div>
+                                            <div class="dd_preview_x_axis">
+                                                <t t-foreach="getWidgetStyles(widget.id).xAxisLabels.split(',')" t-as="label" t-key="label_index">
+                                                    <span class="dd_preview_x_label"><t t-esc="label.trim()"/></span>
+                                                </t>
+                                            </div>
+                                            <div class="dd_preview_y_axis">
+                                                <t t-foreach="getYAxisTicks(widget.id)" t-as="tick" t-key="tick_index">
+                                                    <span class="dd_preview_y_label"><t t-esc="tick"/></span>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- RADAR CHART (PREVIEW) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'radar'">
+                                        <div class="dd_preview_chart_radar">
+                                            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                                                <polygon points="50,10 85,30 75,70 25,70 15,30"
+                                                         fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                <polygon points="50,25 70,35 65,60 35,60 30,35"
+                                                         fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                <polygon points="50,40 55,45 52.5,55 47.5,55 45,45"
+                                                         fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+
+                                                <polygon t-att-points="getRadarPoints(widget.id)"
+                                                         fill="none"
+                                                         t-att-stroke="getWidgetStyles(widget.id).chartColor"
+                                                         stroke-width="2"/>
+
+                                                <line x1="50" y1="50" x2="50" y2="10" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                <line x1="50" y1="50" x2="85" y2="30" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                <line x1="50" y1="50" x2="75" y2="70" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                <line x1="50" y1="50" x2="25" y2="70" stroke="#e2e8f0" stroke-width="0.5"/>
+                                                <line x1="50" y1="50" x2="15" y2="30" stroke="#e2e8f0" stroke-width="0.5"/>
+
+                                                <t t-foreach="getRadarPoints(widget.id).split(' ')" t-as="point" t-key="point_index">
+                                                    <t t-set="coords" t-value="point.split(',')"/>
+                                                    <circle t-att-cx="coords[0]" t-att-cy="coords[1]" r="3"
+                                                            t-att-fill="getWidgetStyles(widget.id).chartColor"/>
+                                                </t>
+                                            </svg>
+                                        </div>
+                                    </t>
+
+                                    <!-- GAUGE CHART (PREVIEW) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'gauge'">
+                                        <div class="dd_preview_chart_gauge">
+                                            <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                <path d="M 10 50 A 40 40 0 0 1 90 50"
+                                                      fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                                                <path t-att-d="getGaugeArc(widget.id)"
+                                                      fill="none"
+                                                      t-att-stroke="getWidgetStyles(widget.id).chartColor"
+                                                      stroke-width="8"/>
+                                                <line t-att-x1="getGaugeNeedle(widget.id).x1" t-att-y1="getGaugeNeedle(widget.id).y1"
+                                                      t-att-x2="getGaugeNeedle(widget.id).x2" t-att-y2="getGaugeNeedle(widget.id).y2"
+                                                      stroke="#333" stroke-width="2"/>
+                                                <circle cx="50" cy="50" r="3" fill="#333"/>
+
+                                                <text x="10" y="55" font-size="6" fill="#666">
+                                                    <t t-esc="getWidgetStyles(widget.id).yAxisMin"/>
+                                                </text>
+                                                <text x="50" y="55" font-size="6" fill="#666">
+                                                    <t t-esc="getGaugeMid(widget.id)"/>
+                                                </text>
+                                                <text x="85" y="55" font-size="6" fill="#666">
+                                                    <t t-esc="getWidgetStyles(widget.id).yAxisMax"/>
+                                                </text>
+                                            </svg>
+                                        </div>
+                                    </t>
+
+                                    <!-- FUNNEL CHART (PREVIEW) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'funnel'">
+                                        <div class="dd_preview_chart_funnel">
+                                            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                                                <t t-foreach="getWidgetData(widget.id).values" t-as="value" t-key="value_index">
+                                                    <path t-att-d="getFunnelPath(widget.id, value_index, value)"
+                                                          t-att-fill="getWidgetStyles(widget.id).chartColor"
+                                                          t-att-opacity="0.9 - (value_index * 0.15)"/>
+                                                    <text t-att-x="50"
+                                                          t-att-y="20 + (value_index * 20)"
+                                                          text-anchor="middle" font-size="8" fill="white">
+                                                        <t t-esc="Math.round(value)"/>%
+                                                    </text>
+                                                </t>
+                                            </svg>
+                                        </div>
+                                    </t>
+
+                                    <!-- HEATMAP (PREVIEW) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'heatmap'">
+                                        <div class="dd_preview_chart_heatmap">
+                                            <table class="dd_preview_heatmap_table">
+                                                <t t-foreach="getHeatmapData(widget.id)" t-as="row" t-key="row_index">
+                                                    <tr>
+                                                        <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                                            <td class="dd_preview_heatmap_cell"
+                                                                t-att-style="'background-color: ' + getWidgetStyles(widget.id).chartColor + '; opacity: ' + cell + ';'"></td>
+                                                        </t>
+                                                    </tr>
+                                                </t>
+                                            </table>
+                                            <div class="dd_preview_heatmap_scale">
+                                                <div class="dd_preview_heatmap_scale_item">
+                                                    <div class="dd_preview_heatmap_scale_color"
+                                                         t-att-style="'background-color: ' + getWidgetStyles(widget.id).chartColor + '; opacity: 0.2;'"></div>
+                                                    <span>Low</span>
+                                                </div>
+                                                <div class="dd_preview_heatmap_scale_item">
+                                                    <div class="dd_preview_heatmap_scale_color"
+                                                         t-att-style="'background-color: ' + getWidgetStyles(widget.id).chartColor + '; opacity: 0.6;'"></div>
+                                                    <span>Medium</span>
+                                                </div>
+                                                <div class="dd_preview_heatmap_scale_item">
+                                                    <div class="dd_preview_heatmap_scale_color"
+                                                         t-att-style="'background-color: ' + getWidgetStyles(widget.id).chartColor + '; opacity: 1.0;'"></div>
+                                                    <span>High</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- SANKEY (PREVIEW, DATA-DRIVEN) -->
+                                    <t t-elif="widget.type == 'chart' and widget.chart_type == 'sankey'">
+                                        <div class="dd_preview_chart_sankey">
+                                            <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                <t t-set="layout" t-value="getSankeyLayout(widget.id)"/>
+                                                <t t-foreach="layout.nodes" t-as="node" t-key="node.id">
+                                                    <rect t-att-x="node.x"
+                                                          t-att-y="node.y"
+                                                          t-att-width="node.width"
+                                                          t-att-height="node.height"
+                                                          t-att-fill="node.color or getWidgetStyles(widget.id).chartColor"
+                                                          t-att-opacity="node.opacity or 0.7"/>
+                                                </t>
+                                                <t t-foreach="layout.links" t-as="link" t-key="link.id">
+                                                    <path t-att-d="link.path"
+                                                          fill="none"
+                                                          t-att-stroke="link.color or getWidgetStyles(widget.id).chartColor"
+                                                          t-att-stroke-width="link.width"
+                                                          t-att-opacity="link.opacity or 0.5"/>
+                                                </t>
+                                            </svg>
+                                        </div>
+                                    </t>
+
+                                    <!-- KPI (PREVIEW) -->
+                                    <t t-elif="widget.type == 'kpi'">
+                                        <div class="dd_preview_kpi_display">
+                                            <div class="dd_preview_kpi_value"
+                                                 t-att-style="'color: ' + getWidgetStyles(widget.id).chartColor">
+                                                <t t-esc="formatKpiValue(getWidgetData(widget.id).values[0])"/>
+                                            </div>
+                                            <div class="dd_preview_kpi_label">
+                                                Last updated:
+                                                <t t-esc="formatTime(getWidgetData(widget.id).lastUpdated)"/>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- TEXT (PREVIEW) -->
+                                    <t t-elif="widget.type == 'text'">
+                                        <div class="dd_preview_text_display">
+                                            <div class="dd_preview_text_content">
+                                                <t t-esc="widget.value_text or 'Text Block'"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <!-- EDIT MODE - NORMAL VIEW -->
+        <t t-else="">
+            <div class="dd_root">
+                <!-- LEFT SIDEBAR -->
+                <div class="dd_sidebar_left">
+                    <div class="dd_logo_title">Dashboard Studio</div>
+
+                    <div class="dd_section_title">Search widgets</div>
+                    <input type="text" class="dd_search_input" placeholder="Search widgets..."/>
+
+                    <div class="dd_section_title">Core Components</div>
+                    <div class="dd_core_grid">
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addLineChart()">
+                            <span class="dd_core_icon">📈</span>
+                            Line Chart
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addBarChart()">
+                            <span class="dd_core_icon">📊</span>
+                            Bar Chart
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addKpiCard()">
+                            <span class="dd_core_icon">🔢</span>
+                            KPI Card
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addTextBlock()">
+                            <span class="dd_core_icon">📝</span>
+                            Text Block
+                        </button>
+                    </div>
+
+                    <div class="dd_section_title">Advanced Charts</div>
+                    <div class="dd_core_grid">
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addAdvancedChart('scatter')">
+                            <span class="dd_core_icon">⚫</span>
+                            Scatter
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addAdvancedChart('radar')">
+                            <span class="dd_core_icon">🕸️</span>
+                            Radar
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addAdvancedChart('gauge')">
+                            <span class="dd_core_icon">🎯</span>
+                            Gauge
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addAdvancedChart('funnel')">
+                            <span class="dd_core_icon">📉</span>
+                            Funnel
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addAdvancedChart('heatmap')">
+                            <span class="dd_core_icon">🔥</span>
+                            Heatmap
+                        </button>
+                        <button class="dd_core_btn" type="button"
+                                t-on-click="() => this.addAdvancedChart('sankey')">
+                            <span class="dd_core_icon">🌊</span>
+                            Sankey
+                        </button>
+                    </div>
+
+                    <div class="dd_section_title">Widget Templates</div>
+                    <div class="dd_templates_list">
+                        <div class="dd_template_item" t-on-click="() => this.addWidgetFromTemplate('sales_kpi')">
+                            💰 Sales KPI
+                        </div>
+                        <div class="dd_template_item" t-on-click="() => this.addWidgetFromTemplate('revenue_trend')">
+                            📈 Revenue Trend
+                        </div>
+                        <div class="dd_template_item" t-on-click="() => this.addWidgetFromTemplate('top_products')">
+                            🏆 Top Products
+                        </div>
+                        <div class="dd_template_item" t-on-click="() => this.addWidgetFromTemplate('conversion_funnel')">
+                            🎯 Conversion Funnel
+                        </div>
+                        <div class="dd_template_item" t-on-click="() => this.addWidgetFromTemplate('performance_gauge')">
+                            ⚡ Performance Gauge
+                        </div>
+                    </div>
+
+                    <div class="dd_section_title">Design System</div>
+                    <div class="dd_nav_item dd_nav_item--active">🎨 Theme Engine</div>
+                    <div class="dd_nav_item">📱 Viewport</div>
+                    <div class="dd_nav_item">🔒 Permissions</div>
+                    <div class="dd_nav_item">⚙️ Advanced</div>
+
+                    <div class="dd_pro_panel">
+                        <div class="dd_pro_title">✨ Pro Feature</div>
+                        <div class="dd_pro_text">
+                            Unlock custom filters and advanced animations.
+                        </div>
+                        <div class="dd_pro_cta">Upgrade Now</div>
+                    </div>
+                </div>
+
+                <!-- CENTER CANVAS -->
+                <div class="dd_canvas">
+                    <t t-if="state.loading">
+                        <div style="padding:24px;">Loading Studio…</div>
+                    </t>
+                    <t t-else="">
+                        <!-- Multi-Page Tabs -->
+                        <div class="dd_pages_tabs">
+                            <t t-foreach="state.pages" t-as="page" t-key="page.id">
+                                <div t-att-class="'dd_page_tab ' + (page.active ? 'dd_page_tab--active' : '')"
+                                     t-on-click="() => this.switchPage(page.id)">
+                                    <span><t t-esc="page.name"/></span>
+                                    <button class="dd_page_tab_delete"
+                                            t-if="state.pages.length > 1"
+                                            t-on-click.stop="() => this.deletePage(page.id)">×</button>
+                                </div>
+                            </t>
+                            <button class="dd_page_tab dd_page_tab--add" t-on-click="() => this.addPage()">+ Add Page</button>
+                        </div>
+
+                        <div class="dd_canvas_header">
+                            <div>
+                                <div class="dd_canvas_title">
+                                    <t t-esc="state.dashboard and state.dashboard.name or 'Project'"/>
+                                </div>
+                                <div class="dd_canvas_subtitle">
+                                    Customize your real-time monitoring interface.
+                                </div>
+                            </div>
+                            <div class="dd_viewport_switch">
+                                <div class="dd_viewport_buttons">
+                                    <button t-att-class="'dd_viewport_btn ' + (state.viewportMode === 'desktop' ? 'dd_viewport_btn--active' : '')"
+                                            t-on-click="() => this.switchViewport('desktop')" title="Desktop">
+                                        🖥️
+                                    </button>
+                                    <button t-att-class="'dd_viewport_btn ' + (state.viewportMode === 'tablet' ? 'dd_viewport_btn--active' : '')"
+                                            t-on-click="() => this.switchViewport('tablet')" title="Tablet">
+                                        📱
+                                    </button>
+                                    <button t-att-class="'dd_viewport_btn ' + (state.viewportMode === 'mobile' ? 'dd_viewport_btn--active' : '')"
+                                            t-on-click="() => this.switchViewport('mobile')" title="Mobile">
+                                        📱
+                                    </button>
+                                </div>
+
+                                <button class="dd_preview_btn" type="button"
+                                        t-on-click="() => this.toggleGlobalFilters()">
+                                    🔍 Filters
+                                </button>
+
+                                <button class="dd_preview_btn" type="button"
+                                        t-on-click="() => this.toggleThemeEditor()">
+                                    🎨 Theme
+                                </button>
+
+                                <div class="dd_export_dropdown">
+                                    <button class="dd_preview_btn" type="button">
+                                        📥 Export ▾
+                                    </button>
+                                    <div class="dd_export_menu">
+                                        <div t-on-click="() => this.exportDashboard('pdf')">PDF Report</div>
+                                        <div t-on-click="() => this.exportDashboard('png')">PNG Image</div>
+                                        <div t-on-click="() => this.exportDashboard('csv')">CSV Data</div>
+                                        <div t-on-click="() => this.exportDashboard('json')">JSON Config</div>
+                                    </div>
+                                </div>
+
+                                <button class="dd_preview_btn" type="button"
+                                        t-on-click="() => this.toggleVersionHistory()">
+                                    🕐 History
+                                </button>
+
+                                <button class="dd_preview_btn" type="button"
+                                        t-on-click="() => this.togglePreview()">
+                                    👁️ Preview
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Global Filters Panel -->
+                        <t t-if="state.showGlobalFilters">
+                            <div class="dd_global_filters_panel">
+                                <div class="dd_filters_header">
+                                    <h3>Global Filters</h3>
+                                    <button t-on-click="() => this.toggleGlobalFilters()">✕</button>
+                                </div>
+                                <div class="dd_filters_body">
+                                    <div class="dd_filter_group">
+                                        <label>Date Range</label>
+                                        <div class="dd_date_presets">
+                                            <button t-att-class="state.globalFilters.dateRange.preset === 'today' ? 'active' : ''"
+                                                    t-on-click="() => this.updateDateRange('today')">Today</button>
+                                            <button t-att-class="state.globalFilters.dateRange.preset === 'this_week' ? 'active' : ''"
+                                                    t-on-click="() => this.updateDateRange('this_week')">This Week</button>
+                                            <button t-att-class="state.globalFilters.dateRange.preset === 'this_month' ? 'active' : ''"
+                                                    t-on-click="() => this.updateDateRange('this_month')">This Month</button>
+                                            <button t-att-class="state.globalFilters.dateRange.preset === 'this_year' ? 'active' : ''"
+                                                    t-on-click="() => this.updateDateRange('this_year')">This Year</button>
+                                        </div>
+                                    </div>
+                                    <button class="dd_apply_filters_btn" t-on-click="() => this.applyGlobalFilters()">
+                                        Apply Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Theme Editor Panel -->
+                        <t t-if="state.showThemeEditor">
+                            <div class="dd_theme_editor_panel">
+                                <div class="dd_theme_header">
+                                    <h3>Theme Editor</h3>
+                                    <button t-on-click="() => this.toggleThemeEditor()">✕</button>
+                                </div>
+                                <div class="dd_theme_body">
+                                    <div class="dd_theme_group">
+                                        <label>Primary Color</label>
+                                        <input type="color"
+                                               t-att-value="state.globalTheme.primaryColor"
+                                               t-on-change="(e) => this.updateGlobalTheme('primaryColor', e.target.value)"/>
+                                    </div>
+                                    <div class="dd_theme_group">
+                                        <label>Secondary Color</label>
+                                        <input type="color"
+                                               t-att-value="state.globalTheme.secondaryColor"
+                                               t-on-change="(e) => this.updateGlobalTheme('secondaryColor', e.target.value)"/>
+                                    </div>
+                                    <div class="dd_theme_group">
+                                        <label>Background</label>
+                                        <input type="color"
+                                               t-att-value="state.globalTheme.backgroundColor"
+                                               t-on-change="(e) => this.updateGlobalTheme('backgroundColor', e.target.value)"/>
+                                    </div>
+                                    <div class="dd_theme_group">
+                                        <label>Font Family</label>
+                                        <select t-att-value="state.globalTheme.fontFamily"
+                                                t-on-change="(e) => this.updateGlobalTheme('fontFamily', e.target.value)">
+                                            <option value="Inter">Inter</option>
+                                            <option value="Roboto">Roboto</option>
+                                            <option value="Open Sans">Open Sans</option>
+                                            <option value="Montserrat">Montserrat</option>
+                                        </select>
+                                    </div>
+                                    <div class="dd_theme_group">
+                                        <label>Spacing</label>
+                                        <select t-att-value="state.globalTheme.spacing"
+                                                t-on-change="(e) => this.updateGlobalTheme('spacing', e.target.value)">
+                                            <option value="compact">Compact</option>
+                                            <option value="comfortable">Comfortable</option>
+                                            <option value="spacious">Spacious</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Version History Panel -->
+                        <t t-if="state.showVersionHistory">
+                            <div class="dd_version_history_panel">
+                                <div class="dd_version_header">
+                                    <h3>Version History</h3>
+                                    <button t-on-click="() => this.toggleVersionHistory()">✕</button>
+                                </div>
+                                <div class="dd_version_body">
+                                    <button class="dd_save_version_btn"
+                                            t-on-click="() => this.saveVersion('Manual save')">
+                                        💾 Save Current Version
+                                    </button>
+                                    <div class="dd_versions_list">
+                                        <t t-if="state.versions.length === 0">
+                                            <p class="dd_no_versions">No saved versions yet</p>
+                                        </t>
+                                        <t t-foreach="state.versions" t-as="version" t-key="version.id">
+                                            <div class="dd_version_item">
+                                                <div class="dd_version_info">
+                                                    <div class="dd_version_desc"><t t-esc="version.description"/></div>
+                                                    <div class="dd_version_time"><t t-esc="new Date(version.timestamp).toLocaleString()"/></div>
+                                                </div>
+                                                <button class="dd_restore_btn"
+                                                        t-on-click="() => this.restoreVersion(version.id)">
+                                                    ↩️ Restore
+                                                </button>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Widgets Grid with Drag & Drop -->
+                        <div class="dd_widgets_grid">
+                            <t t-foreach="state.widgets" t-as="widget" t-key="widget.id">
+                                <div draggable="true"
+                                     t-on-click="() => this.selectWidget(widget.id)"
+                                     t-on-dragstart="(e) => this.onDragStart(widget, e)"
+                                     t-on-dragend="(e) => this.onDragEnd(e)"
+                                     t-on-dragover="(e) => this.onDragOver(e)"
+                                     t-on-drop="(e) => this.onDrop(widget, e)"
+                                     t-att-class="'dd_widget_card ' + (state.selectedId === widget.id ? 'dd_widget_card--selected' : '')"
+                                     t-att-style="getWidgetCardStyle(widget.id)"
+                                     t-on-click.capture="() => this.handleWidgetEvent(widget.id, 'onClick', $event)"
+                                     t-on-dblclick.capture="() => this.handleWidgetEvent(widget.id, 'onDoubleClick', $event)">
+
+                                    <div class="dd_widget_drag_handle">⋮⋮</div>
+
+                                    <div class="dd_widget_card_header">
+                                        <div class="dd_widget_title_section">
+                                            <span class="dd_widget_card_title"
+                                                  t-att-style="'color: ' + getWidgetStyles(widget.id).textColor">
+                                                <t t-esc="widget.name"/>
+                                            </span>
+                                            <span class="dd_widget_card_type">
+                                                <t t-esc="widget.type"/>
+                                            </span>
+                                        </div>
+                                        <button class="dd_widget_delete_btn" type="button"
+                                                t-on-click.stop="() => { this.selectWidget(widget.id); this.deleteSelectedWidget(); }">
+                                            🗑️
+                                        </button>
+                                    </div>
+
+                                    <!-- Widget Preview based on type -->
+                                    <div class="dd_widget_preview">
+                                        <!-- BAR CHART (EDIT MODE) -->
+                                        <t t-if="widget.type == 'chart' and widget.chart_type == 'bar'">
+                                            <div class="dd_chart_with_axis">
+                                                <div class="dd_chart_bars">
+                                                    <t t-foreach="getWidgetData(widget.id).values" t-as="value" t-key="value_index">
+                                                        <div class="dd_chart_bar"
+                                                             t-att-style="'background: ' + getWidgetStyles(widget.id).chartColor + '; height: ' + value + '%;'">
+                                                            <span class="dd_bar_value"><t t-esc="Math.round(value)"/></span>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                                <div class="dd_x_axis">
+                                                    <t t-foreach="getWidgetStyles(widget.id).xAxisLabels.split(',')" t-as="label" t-key="label_index">
+                                                        <span class="dd_x_label"><t t-esc="label.trim()"/></span>
+                                                    </t>
+                                                </div>
+                                                <div class="dd_y_axis">
+                                                    <t t-foreach="getYAxisTicks(widget.id)" t-as="tick" t-key="tick_index">
+                                                        <span class="dd_y_label"><t t-esc="tick"/></span>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+
+                                        <!-- LINE CHART (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'line'">
+                                            <div class="dd_chart_with_axis">
+                                                <div class="dd_chart_line">
+                                                    <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                        <line x1="0" y1="15" x2="100" y2="15" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                        <line x1="0" y1="30" x2="100" y2="30" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                        <line x1="0" y1="45" x2="100" y2="45" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                        <polyline t-att-points="getLineChartPoints(widget.id)"
+                                                                  fill="none" stroke="currentColor" stroke-width="2"/>
+                                                        <t t-foreach="getLineChartPoints(widget.id).split(' ')" t-as="point" t-key="point_index">
+                                                            <t t-set="coords" t-value="point.split(',')"/>
+                                                            <circle t-att-cx="coords[0]" t-att-cy="coords[1]" r="3" fill="currentColor"/>
+                                                        </t>
+                                                    </svg>
+                                                </div>
+                                                <div class="dd_x_axis">
+                                                    <t t-foreach="getWidgetStyles(widget.id).xAxisLabels.split(',')" t-as="label" t-key="label_index">
+                                                        <span class="dd_x_label"><t t-esc="label.trim()"/></span>
+                                                    </t>
+                                                </div>
+                                                <div class="dd_y_axis">
+                                                    <t t-foreach="getYAxisTicks(widget.id)" t-as="tick" t-key="tick_index">
+                                                        <span class="dd_y_label"><t t-esc="tick"/></span>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+
+                                        <!-- SCATTER (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'scatter'">
+                                            <div class="dd_chart_with_axis">
+                                                <div class="dd_chart_scatter">
+                                                    <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                        <line x1="0" y1="15" x2="100" y2="15" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                        <line x1="0" y1="30" x2="100" y2="30" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                        <line x1="0" y1="45" x2="100" y2="45" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                        <t t-foreach="getScatterPoints(widget.id)" t-as="point" t-key="point_index">
+                                                            <circle t-att-cx="point.x" t-att-cy="point.y" r="3" fill="currentColor"/>
+                                                        </t>
+                                                    </svg>
+                                                </div>
+                                                <div class="dd_x_axis">
+                                                    <t t-foreach="getWidgetStyles(widget.id).xAxisLabels.split(',')" t-as="label" t-key="label_index">
+                                                        <span class="dd_x_label"><t t-esc="label.trim()"/></span>
+                                                    </t>
+                                                </div>
+                                                <div class="dd_y_axis">
+                                                    <t t-foreach="getYAxisTicks(widget.id)" t-as="tick" t-key="tick_index">
+                                                        <span class="dd_y_label"><t t-esc="tick"/></span>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+
+                                        <!-- RADAR (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'radar'">
+                                            <div class="dd_chart_radar">
+                                                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                                                    <polygon points="50,10 85,30 75,70 25,70 15,30"
+                                                             fill="none" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                    <polygon points="50,25 70,35 65,60 35,60 30,35"
+                                                             fill="none" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+                                                    <polygon points="50,40 55,45 52.5,55 47.5,55 45,45"
+                                                             fill="none" stroke="#3d3d52" stroke-width="0.3" opacity="0.3"/>
+
+                                                    <polygon t-att-points="getRadarPoints(widget.id)"
+                                                             fill="none" stroke="currentColor" stroke-width="2"/>
+                                                    <t t-foreach="getRadarPoints(widget.id).split(' ')" t-as="point" t-key="point_index">
+                                                        <t t-set="coords" t-value="point.split(',')"/>
+                                                        <circle t-att-cx="coords[0]" t-att-cy="coords[1]" r="3" fill="currentColor"/>
+                                                    </t>
+                                                </svg>
+                                            </div>
+                                        </t>
+
+                                        <!-- GAUGE (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'gauge'">
+                                            <div class="dd_chart_gauge">
+                                                <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                    <path d="M 10 50 A 40 40 0 0 1 90 50"
+                                                          fill="none" stroke="#3d3d52" stroke-width="4" opacity="0.3"/>
+                                                    <path t-att-d="getGaugeArc(widget.id)"
+                                                          fill="none" stroke="currentColor" stroke-width="4"/>
+                                                    <line t-att-x1="getGaugeNeedle(widget.id).x1" t-att-y1="getGaugeNeedle(widget.id).y1"
+                                                          t-att-x2="getGaugeNeedle(widget.id).x2" t-att-y2="getGaugeNeedle(widget.id).y2"
+                                                          stroke="#fff" stroke-width="2"/>
+                                                    <circle cx="50" cy="50" r="3" fill="#fff"/>
+                                                    <text x="10" y="55" font-size="6" fill="#9ca3af">
+                                                        <t t-esc="getWidgetStyles(widget.id).yAxisMin"/>
+                                                    </text>
+                                                    <text x="50" y="55" font-size="6" fill="#9ca3af">
+                                                        <t t-esc="getGaugeMid(widget.id)"/>
+                                                    </text>
+                                                    <text x="85" y="55" font-size="6" fill="#9ca3af">
+                                                        <t t-esc="getWidgetStyles(widget.id).yAxisMax"/>
+                                                    </text>
+                                                </svg>
+                                            </div>
+                                        </t>
+
+                                        <!-- FUNNEL (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'funnel'">
+                                            <div class="dd_chart_funnel">
+                                                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                                                    <t t-foreach="getWidgetData(widget.id).values" t-as="value" t-key="value_index">
+                                                        <path t-att-d="getFunnelPath(widget.id, value_index, value)"
+                                                              fill="currentColor"
+                                                              t-att-opacity="0.9 - (value_index * 0.15)"/>
+                                                        <text t-att-x="50"
+                                                              t-att-y="20 + (value_index * 20)"
+                                                              text-anchor="middle"
+                                                              font-size="8"
+                                                              fill="#fff">
+                                                            <t t-esc="Math.round(value)"/>%
+                                                        </text>
+                                                    </t>
+                                                </svg>
+                                            </div>
+                                        </t>
+
+                                        <!-- HEATMAP (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'heatmap'">
+                                            <div class="dd_chart_heatmap">
+                                                <table class="dd_heatmap_table">
+                                                    <t t-foreach="getHeatmapData(widget.id)" t-as="row" t-key="row_index">
+                                                        <tr>
+                                                            <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                                                <td class="dd_heatmap_cell"
+                                                                    t-att-style="'background-color: ' + getWidgetStyles(widget.id).chartColor + '; opacity: ' + cell + ';'"></td>
+                                                            </t>
+                                                        </tr>
+                                                    </t>
+                                                </table>
+                                            </div>
+                                        </t>
+
+                                        <!-- SANKEY (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'chart' and widget.chart_type == 'sankey'">
+                                            <div class="dd_chart_sankey">
+                                                <svg viewBox="0 0 100 60" style="width: 100%; height: 100%;">
+                                                    <t t-set="layout" t-value="getSankeyLayout(widget.id)"/>
+                                                    <t t-foreach="layout.nodes" t-as="node" t-key="node.id">
+                                                        <rect t-att-x="node.x"
+                                                              t-att-y="node.y"
+                                                              t-att-width="node.width"
+                                                              t-att-height="node.height"
+                                                              fill="currentColor"
+                                                              t-att-opacity="node.opacity or 0.7"/>
+                                                    </t>
+                                                    <t t-foreach="layout.links" t-as="link" t-key="link.id">
+                                                        <path t-att-d="link.path"
+                                                              fill="none"
+                                                              stroke="currentColor"
+                                                              t-att-stroke-width="link.width"
+                                                              t-att-opacity="link.opacity or 0.5"/>
+                                                    </t>
+                                                </svg>
+                                            </div>
+                                        </t>
+                                       <!-- AI INSIGHT SECTION (EDIT MODE) -->
+<t t-if="widget.type == 'chart'">
+    <div class="dd_ai_insight_section">
+        <button type="button"
+                class="dd_ai_insight_btn"
+                t-att-class="getWidgetData(widget.id).generatingInsight ? 'dd_ai_insight_btn--loading' : ''"
+                t-att-disabled="getWidgetData(widget.id).generatingInsight"
+                t-on-click="() => this.generateAiInsight(widget.id)">
+            <t t-if="getWidgetData(widget.id).generatingInsight">
+                <span class="dd_ai_spinner">⏳</span> Analyzing data...
+            </t>
+            <t t-else="">
+                <span>✨</span> Generate AI Insight
+            </t>
+        </button>
+
+        <!-- Success: Show Insight -->
+        <t t-if="getWidgetData(widget.id).aiInsight">
+            <div class="dd_ai_insight_result">
+                <div class="dd_ai_insight_icon">💡</div>
+                <div class="dd_ai_insight_text">
+                    <t t-esc="getWidgetData(widget.id).aiInsight"/>
+                </div>
+                <button class="dd_ai_insight_refresh"
+                        t-on-click="() => this.generateAiInsight(widget.id)"
+                        title="Regenerate">
+                    🔄
+                </button>
+            </div>
+        </t>
+
+        <!-- Error State -->
+        <t t-if="getWidgetData(widget.id).aiInsightError">
+            <div class="dd_ai_insight_error">
+                ⚠️ <t t-esc="getWidgetData(widget.id).aiInsightError"/>
+            </div>
+        </t>
+    </div>
+</t>
+                                        <!-- KPI (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'kpi'">
+                                            <div class="dd_kpi_display" t-on-dblclick="() => this.toggleEditMode(widget.id)">
+                                                <t t-if="widget.isEditing">
+                                                    <input type="text"
+                                                           class="dd_kpi_value_input"
+                                                           t-att-value="getWidgetData(widget.id).values[0] or '0'"
+                                                           t-on-blur="(e) => { this.updateWidgetValue(widget.id, e.target.value); widget.isEditing = false; }"
+                                                           t-on-keyup="(e) => this.onKeyup(e, () => { this.updateWidgetValue(widget.id, e.target.value); widget.isEditing = false; })"
+                                                           placeholder="Enter value"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="dd_kpi_value"
+                                                         t-att-style="'color: ' + getWidgetStyles(widget.id).chartColor">
+                                                        <t t-esc="formatKpiValue(getWidgetData(widget.id).values[0])"/>
+                                                    </div>
+                                                    <div class="dd_kpi_label">
+                                                        Last updated:
+                                                        <t t-esc="formatTime(getWidgetData(widget.id).lastUpdated)"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </t>
+
+                                        <!-- TEXT (EDIT MODE) -->
+                                        <t t-elif="widget.type == 'text'">
+                                            <div class="dd_text_display" t-on-dblclick="() => this.toggleEditMode(widget.id)">
+                                                <t t-if="widget.isEditing">
+                                                    <textarea class="dd_text_content_input"
+                                                              t-att-value="widget.value_text or ''"
+                                                              t-on-blur="(e) => this.saveWidgetTextContent(widget.id, e.target.value)"
+                                                              placeholder="Enter text content..."
+                                                              rows="4"></textarea>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="dd_text_content"
+                                                         t-att-style="'color: ' + getWidgetStyles(widget.id).textColor">
+                                                        <t t-esc="widget.value_text or 'Double-click to edit'"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <!-- Add Widget Card -->
+                            <div class="dd_widget_card dd_widget_card--add"
+                                 t-on-click="() => this.addKpiCard()">
+                                <div class="dd_widget_card_add_plus">+</div>
+                                <div class="dd_widget_card_add_text">Add Widget</div>
+                            </div>
+                        </div>
+
+                        <!-- Widgets List (below grid) -->
+                        <div class="dd_widgets_list_block">
+                            <div class="dd_widgets_list_title">
+                                All Widgets (<t t-esc="state.widgets.length"/>)
+                            </div>
+                            <t t-if="state.widgets.length">
+                                <ul class="dd_widgets_list">
+                                    <t t-foreach="state.widgets" t-as="w" t-key="w.id">
+                                        <li t-on-click="() => this.selectWidget(w.id)"
+                                            t-att-class="'dd_widgets_list_item ' + (state.selectedId === w.id ? 'is-selected' : '')">
+                                            <span class="dd_widgets_list_icon">
+                                                <t t-if="w.type === 'kpi'">🔢</t>
+                                                <t t-elif="w.type === 'chart'">📊</t>
+                                                <t t-else="">📝</t>
+                                            </span>
+                                            <t t-esc="w.name"/>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </t>
+                            <t t-else="">
+                                <p class="dd_widgets_list_empty">
+                                    No widgets yet. Use the buttons on the left to add some.
+                                </p>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- RIGHT SIDEBAR / INSPECTOR -->
+                <div class="dd_sidebar_right">
+                    <div class="dd_tabs">
+                        <div t-on-click="() => this.switchTab('styles')"
+                             t-att-class="'dd_tab ' + (state.activeTab === 'styles' ? 'dd_tab--active' : '')">
+                            🎨 Styles
+                        </div>
+                        <div t-on-click="() => this.switchTab('data_source')"
+                             t-att-class="'dd_tab ' + (state.activeTab === 'data_source' ? 'dd_tab--active' : '')">
+                            📊 Data
+                        </div>
+                        <div t-on-click="() => this.switchTab('conditional')"
+                             t-att-class="'dd_tab ' + (state.activeTab === 'conditional' ? 'dd_tab--active' : '')">
+                            🎯 Rules
+                        </div>
+                        <div t-on-click="() => this.switchTab('events')"
+                             t-att-class="'dd_tab ' + (state.activeTab === 'events' ? 'dd_tab--active' : '')">
+                            ⚡ Events
+                        </div>
+                    </div>
+
+                    <div class="dd_tab_body">
+                        <t t-if="selectedWidget">
+                            <p class="dd_tab_header">Selected Widget</p>
+                            <p><strong><t t-esc="selectedWidget.name"/></strong></p>
+                            <p style="font-size:12px; color:#9ca3af;">
+                                Type: <t t-esc="selectedWidget.type"/>
+                            </p>
+
+                            <!-- STYLES TAB -->
+                            <t t-if="state.activeTab === 'styles'">
+                                <div class="dd_style_section">
+                                    <label class="dd_style_label">Widget Name</label>
+                                    <input type="text"
+                                           class="dd_style_input_text"
+                                           t-att-value="selectedWidget.name"
+                                           t-on-change="(e) => this.updateWidgetName(selectedWidget.id, e.target.value)"/>
+
+                                    <t t-if="selectedWidget.type === 'kpi'">
+                                        <label class="dd_style_label">KPI Value</label>
+                                        <input type="text"
+                                               class="dd_style_input_text"
+                                               t-att-value="getWidgetData(selectedWidget.id).values[0] or '0'"
+                                               t-on-change="(e) => this.updateWidgetValue(selectedWidget.id, e.target.value)"
+                                               placeholder="Enter KPI value (e.g., 1,234)"/>
+                                        <p class="dd_help_text">
+                                            💡 Tip: Double-click the value in the widget to edit inline
+                                        </p>
+                                    </t>
+
+                                    <t t-if="selectedWidget.type === 'text'">
+                                        <label class="dd_style_label">Text Content</label>
+                                        <textarea class="dd_style_textarea"
+                                                  t-att-value="selectedWidget.value_text or ''"
+                                                  t-on-change="(e) => this.updateWidgetValue(selectedWidget.id, e.target.value)"
+                                                  placeholder="Enter text content..."
+                                                  rows="4"></textarea>
+                                        <p class="dd_help_text">
+                                            💡 Tip: Double-click the text in the widget to edit inline
+                                        </p>
+                                    </t>
+
+                                    <t t-if="selectedWidget.type === 'chart'">
+                                        <div class="dd_chart_editor">
+                                            <label class="dd_style_label">Chart Type</label>
+                                            <select class="dd_style_select"
+                                                    t-att-value="selectedWidget.chart_type"
+                                                    t-on-change="(e) => this.updateChartType(selectedWidget.id, e.target.value)">
+                                                <option value="bar">Bar Chart</option>
+                                                <option value="line">Line Chart</option>
+                                                <option value="scatter">Scatter Plot</option>
+                                                <option value="radar">Radar Chart</option>
+                                                <option value="gauge">Gauge</option>
+                                                <option value="funnel">Funnel</option>
+                                                <option value="heatmap">Heatmap</option>
+                                                <option value="sankey">Sankey</option>
+                                            </select>
+
+                                            <label class="dd_style_label">Data Values (comma-separated)</label>
+                                            <input type="text"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetData(selectedWidget.id).values.length ? getWidgetData(selectedWidget.id).values.join(',') : ''"
+                                                   t-on-change="(e) => this.updateWidgetValue(selectedWidget.id, e.target.value)"
+                                                   placeholder="e.g., 60,85,70,95"/>
+                                            <p class="dd_help_text">💡 Enter values separated by commas</p>
+
+                                            <label class="dd_style_label">X-Axis Labels (comma-separated)</label>
+                                            <input type="text"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetStyles(selectedWidget.id).xAxisLabels or ''"
+                                                   t-on-change="(e) => this.updateWidgetStyle(selectedWidget.id, 'xAxisLabels', e.target.value)"
+                                                   placeholder="e.g., Q1,Q2,Q3,Q4"/>
+                                            <p class="dd_help_text">💡 Labels for X-axis points</p>
+
+                                            <label class="dd_style_label">Y-Axis Min</label>
+                                            <input type="number"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetStyles(selectedWidget.id).yAxisMin"
+                                                   t-on-change="(e) => this.updateWidgetStyle(selectedWidget.id, 'yAxisMin', e.target.value)"/>
+
+                                            <label class="dd_style_label">Y-Axis Max</label>
+                                            <input type="number"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetStyles(selectedWidget.id).yAxisMax"
+                                                   t-on-change="(e) => this.updateWidgetStyle(selectedWidget.id, 'yAxisMax', e.target.value)"/>
+                                        </div>
+                                    </t>
+
+                                    <div class="dd_style_divider"></div>
+
+                                    <label class="dd_style_label">Background Color</label>
+                                    <input type="color"
+                                           class="dd_style_input"
+                                           t-att-value="getWidgetStyles(selectedWidget.id).backgroundColor"
+                                           t-on-change="(e) => this.updateWidgetStyle(selectedWidget.id, 'backgroundColor', e.target.value)"/>
+
+                                    <label class="dd_style_label">Text Color</label>
+                                    <input type="color"
+                                           class="dd_style_input"
+                                           t-att-value="getWidgetStyles(selectedWidget.id).textColor"
+                                           t-on-change="(e) => this.updateWidgetStyle(selectedWidget.id, 'textColor', e.target.value)"/>
+
+                                    <label class="dd_style_label">Chart Color</label>
+                                    <input type="color"
+                                           class="dd_style_input"
+                                           t-att-value="getWidgetStyles(selectedWidget.id).chartColor"
+                                           t-on-change="(e) => this.updateWidgetStyle(selectedWidget.id, 'chartColor', e.target.value)"/>
+
+                                    <label class="dd_style_label">Border Radius (px)</label>
+                                    <input type="range"
+                                           class="dd_style_range"
+                                           min="0" max="30"
+                                           t-att-value="getWidgetStyles(selectedWidget.id).borderRadius"
+                                           t-on-input="(e) => this.updateWidgetStyle(selectedWidget.id, 'borderRadius', e.target.value)"/>
+                                    <span class="dd_style_value">
+                                        <t t-esc="getWidgetStyles(selectedWidget.id).borderRadius"/>px
+                                    </span>
+
+                                    <label class="dd_style_label">Padding (px)</label>
+                                    <input type="range"
+                                           class="dd_style_range"
+                                           min="0" max="50"
+                                           t-att-value="getWidgetStyles(selectedWidget.id).padding"
+                                           t-on-input="(e) => this.updateWidgetStyle(selectedWidget.id, 'padding', e.target.value)"/>
+                                    <span class="dd_style_value">
+                                        <t t-esc="getWidgetStyles(selectedWidget.id).padding"/>px
+                                    </span>
+
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm dd_save_btn"
+                                            t-on-click="() => this.saveWidgetChanges()">
+                                        Apply Styles
+                                    </button>
+                                </div>
+                            </t>
+
+                            <!-- DATA SOURCE TAB -->
+                            <t t-if="state.activeTab === 'data_source'">
+                                <div class="dd_style_section">
+                                    <label class="dd_style_label">Data Type</label>
+                                    <select class="dd_style_select"
+                                            t-att-value="getWidgetData(selectedWidget.id).type"
+                                            t-on-change="(e) => this.updateWidgetDataSource(selectedWidget.id, {type: e.target.value})">
+                                        <option value="static">Static Data</option>
+                                        <option value="realtime">Real-time Data</option>
+                                        <option value="database">Database Query</option>
+                                        <option value="api">API Endpoint</option>
+                                    </select>
+
+                                    <t t-if="getWidgetData(selectedWidget.id).type === 'database'">
+                                        <label class="dd_style_label">Model</label>
+                                        <select class="dd_style_select">
+                                            <option>sale.order</option>
+                                            <option>res.partner</option>
+                                            <option>product.product</option>
+                                            <option>account.move</option>
+                                        </select>
+
+                                        <label class="dd_style_label">Domain Filter</label>
+                                        <textarea class="dd_style_textarea"
+                                                  placeholder="[('state', '=', 'done')]"
+                                                  rows="3"></textarea>
+
+                                        <label class="dd_style_label">Measure Field</label>
+                                        <select class="dd_style_select">
+                                            <option>amount_total</option>
+                                            <option>quantity</option>
+                                            <option>count</option>
+                                        </select>
+
+                                        <label class="dd_style_label">Group By</label>
+                                        <select class="dd_style_select">
+                                            <option>date</option>
+                                            <option>partner_id</option>
+                                            <option>product_id</option>
+                                            <option>user_id</option>
+                                        </select>
+                                    </t>
+
+                                    <t t-if="getWidgetData(selectedWidget.id).type === 'api'">
+                                        <label class="dd_style_label">API Endpoint</label>
+                                        <input type="url"
+                                               class="dd_style_input_text"
+                                               placeholder="https://api.example.com/data"/>
+
+                                        <label class="dd_style_label">API Key</label>
+                                        <input type="password"
+                                               class="dd_style_input_text"
+                                               placeholder="Enter API key"/>
+                                    </t>
+
+                                    <div class="dd_style_divider"></div>
+
+                                    <label class="dd_style_label">Refresh Rate</label>
+                                    <select class="dd_style_select"
+                                            t-on-change="(e) => this.updateWidgetDataSource(selectedWidget.id, {refreshRate: parseInt(e.target.value)})">
+                                        <option value="0">Manual</option>
+                                        <option value="30">Every 30 seconds</option>
+                                        <option value="60">Every minute</option>
+                                        <option value="300">Every 5 minutes</option>
+                                        <option value="3600">Every hour</option>
+                                    </select>
+
+                                    <div class="dd_data_status">
+                                        <p class="dd_help_text">
+                                            Last updated:
+                                            <t t-esc="formatTime(getWidgetData(selectedWidget.id).lastUpdated)"/>
+                                        </p>
+                                        <button class="dd_refresh_data_btn"
+                                                t-on-click="() => this.refreshWidget(selectedWidget.id)">
+                                            🔄 Refresh Now
+                                        </button>
+                                    </div>
+
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm dd_save_btn">
+                                        Update Data Source
+                                    </button>
+                                </div>
+                            </t>
+
+                            <!-- CONDITIONAL FORMATTING TAB -->
+                            <t t-if="state.activeTab === 'conditional'">
+                                <div class="dd_style_section">
+                                    <p class="dd_tab_header">Conditional Formatting</p>
+                                    <p class="dd_help_text">Apply color rules based on data values</p>
+
+                                    <t t-foreach="getWidgetRules(selectedWidget.id)" t-as="rule" t-key="rule_index">
+                                        <div class="dd_conditional_rule">
+                                            <label class="dd_style_label">
+                                                Rule <t t-esc="rule_index + 1"/>
+                                            </label>
+                                            <div class="dd_rule_row">
+                                                <select class="dd_style_select"
+                                                        t-att-value="rule.condition"
+                                                        t-on-change="(e) => this.updateRule(selectedWidget.id, rule_index, 'condition', e.target.value)">
+                                                    <option value="greater_than">Greater than</option>
+                                                    <option value="less_than">Less than</option>
+                                                    <option value="equal_to">Equal to</option>
+                                                    <option value="between">Between</option>
+                                                </select>
+                                                <input type="number"
+                                                       class="dd_style_input_text"
+                                                       t-att-value="rule.threshold"
+                                                       t-on-change="(e) => this.updateRule(selectedWidget.id, rule_index, 'threshold', parseFloat(e.target.value))"
+                                                       placeholder="Threshold"
+                                                       style="flex: 1;"/>
+                                            </div>
+                                            <div class="dd_rule_row">
+                                                <label>Background Color</label>
+                                                <input type="color"
+                                                       class="dd_style_input"
+                                                       t-att-value="rule.style.backgroundColor"
+                                                       t-on-change="(e) => this.updateRule(selectedWidget.id, rule_index, 'style.backgroundColor', e.target.value)"/>
+                                            </div>
+                                            <div class="dd_rule_row">
+                                                <label>Text Color</label>
+                                                <input type="color"
+                                                       class="dd_style_input"
+                                                       t-att-value="rule.style.color"
+                                                       t-on-change="(e) => this.updateRule(selectedWidget.id, rule_index, 'style.color', e.target.value)"/>
+                                            </div>
+                                            <button class="dd_remove_rule_btn"
+                                                    t-on-click="() => this.removeRule(selectedWidget.id, rule_index)">
+                                                Remove Rule
+                                            </button>
+                                        </div>
+                                    </t>
+
+                                    <button type="button" class="dd_add_rule_btn"
+                                            t-on-click="() => this.addRule(selectedWidget.id)">
+                                        + Add Another Rule
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm dd_save_btn"
+                                            t-on-click="() => this.saveWidgetChanges()">
+                                        Save Formatting Rules
+                                    </button>
+                                </div>
+                            </t>
+
+                            <!-- EVENTS TAB -->
+                            <t t-if="state.activeTab === 'events'">
+                                <div class="dd_style_section">
+                                    <label class="dd_style_label">On Click Action</label>
+                                    <select class="dd_style_select"
+                                            t-att-value="getWidgetEvents(selectedWidget.id).onClick.action || ''"
+                                            t-on-change="(e) => this.updateEvent(selectedWidget.id, 'onClick', 'action', e.target.value)">
+                                        <option value="">None</option>
+                                        <option value="open_form">Open Form View</option>
+                                        <option value="open_list">Open List View</option>
+                                        <option value="execute_action">Execute Action</option>
+                                        <option value="open_url">Open URL</option>
+                                        <option value="refresh_widget">Refresh Widget</option>
+                                    </select>
+
+                                    <t t-set="onClickAction" t-value="getWidgetEvents(selectedWidget.id).onClick.action || ''"/>
+
+                                    <t t-if="onClickAction">
+                                        <t t-if="onClickAction === 'open_form' or onClickAction === 'open_list'">
+                                            <label class="dd_style_label">Target Model</label>
+                                            <input type="text"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetEvents(selectedWidget.id).onClick.model || ''"
+                                                   t-on-change="(e) => this.updateEvent(selectedWidget.id, 'onClick', 'model', e.target.value)"
+                                                   placeholder="e.g., sale.order"/>
+                                        </t>
+
+                                        <t t-if="onClickAction === 'execute_action'">
+                                            <label class="dd_style_label">Action ID</label>
+                                            <input type="text"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetEvents(selectedWidget.id).onClick.actionId || ''"
+                                                   t-on-change="(e) => this.updateEvent(selectedWidget.id, 'onClick', 'actionId', e.target.value)"
+                                                   placeholder="e.g., sale.action_orders"/>
+                                        </t>
+
+                                        <t t-if="onClickAction === 'open_url'">
+                                            <label class="dd_style_label">URL</label>
+                                            <input type="url"
+                                                   class="dd_style_input_text"
+                                                   t-att-value="getWidgetEvents(selectedWidget.id).onClick.url || ''"
+                                                   t-on-change="(e) => this.updateEvent(selectedWidget.id, 'onClick', 'url', e.target.value)"
+                                                   placeholder="https://example.com"/>
+                                        </t>
+                                    </t>
+
+                                    <label class="dd_style_label">On Hover Action</label>
+                                    <select class="dd_style_select"
+                                            t-att-value="getWidgetEvents(selectedWidget.id).onHover.action || ''"
+                                            t-on-change="(e) => this.updateEvent(selectedWidget.id, 'onHover', 'action', e.target.value)">
+                                        <option value="">None</option>
+                                        <option value="show_tooltip">Show Tooltip</option>
+                                        <option value="highlight">Highlight</option>
+                                        <option value="show_details">Show Details</option>
+                                    </select>
+
+                                    <div class="dd_checkbox_group">
+                                        <input type="checkbox" id="dd_refresh_on_click"
+                                               t-att-checked="getWidgetEvents(selectedWidget.id).refreshOnClick || false"
+                                               t-on-change="(e) => this.updateEvent(selectedWidget.id, 'refreshOnClick', null, e.target.checked)"/>
+                                        <label for="dd_refresh_on_click">Refresh on click</label>
+                                    </div>
+
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm dd_save_btn"
+                                            t-on-click="() => this.saveWidgetChanges()">
+                                        Save Events
+                                    </button>
+                                </div>
+                            </t>
+
+                            <div class="dd_button_row">
+                                <button type="button"
+                                        class="btn btn-secondary btn-sm"
+                                        t-on-click="() => this.openSelectedWidgetForm()">
+                                    Full Editor
+                                </button>
+                                <button type="button"
+                                        class="btn btn-danger btn-sm"
+                                        t-on-click="() => this.deleteSelectedWidget()">
+                                    Delete
+                                </button>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <p style="color: #6b7280; padding: 20px; text-align: center;">
+                                Select a widget to customize its properties
+                            </p>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+
+</templates>

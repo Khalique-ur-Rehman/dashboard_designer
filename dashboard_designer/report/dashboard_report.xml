@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_dashboard_template">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="items" t-value="o.item_ids.sorted(key=lambda w: (w.sequence, w.id))"/>
+
+                <div class="page">
+                    <style>
+                        @page {
+                            margin: 15mm;
+                            size: A4 portrait;
+                        }
+
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", Arial, sans-serif;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                            color-adjust: exact;
+                            margin: 0;
+                            padding: 0;
+                            background: #f8f9fa;
+                        }
+
+                        /* Light Theme Container - Matching Preview */
+                        .dd_preview_fullscreen_overlay {
+                            width: 100%;
+                            min-height: 100vh;
+                            background: #f8f9fa;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+
+                        .dd_preview_hod {
+                            width: 100%;
+                            background: transparent;
+                        }
+
+                        /* Header - Light Theme with Blue Accent */
+                        .dd_preview_hod_header {
+                            background: white;
+                            color: #1f2937;
+                            padding: 20px 24px;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            flex-wrap: wrap;
+                            gap: 16px;
+                            border-bottom: 1px solid #e5e7eb;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                            margin-bottom: 0;
+                        }
+
+                        .dd_preview_hod_title_section {
+                            display: flex;
+                            align-items: center;
+                            gap: 16px;
+                        }
+
+                        .dd_preview_hod_icon {
+                            font-size: 32px;
+                            line-height: 1;
+                        }
+
+                        .dd_preview_hod_title {
+                            font-size: 24px;
+                            font-weight: 700;
+                            margin: 0 0 2px 0;
+                            color: #1f2937;
+                            letter-spacing: -0.02em;
+                            line-height: 1.1;
+                        }
+
+                        .dd_preview_hod_subtitle {
+                            font-size: 12px;
+                            margin: 0;
+                            color: #6b7280;
+                            font-weight: 400;
+                            line-height: 1.4;
+                        }
+
+                        .dd_preview_hod_actions {
+                            display: flex;
+                            gap: 6px;
+                            flex-wrap: wrap;
+                        }
+
+                        .dd_preview_hod_btn {
+                            padding: 6px 12px;
+                            border: 1px solid #e5e7eb;
+                            background: white;
+                            color: #6b7280;
+                            border-radius: 6px;
+                            font-weight: 500;
+                            font-size: 12px;
+                        }
+
+                        .dd_preview_hod_btn_active {
+                            background: #3b82f6;
+                            color: white;
+                            border-color: #3b82f6;
+                        }
+
+                        /* Widgets Grid - Portrait Layout with Proper Spacing */
+                        .dd_preview_widgets_grid {
+                            display: grid;
+                            grid-template-columns: 1fr;
+                            gap: 20px;
+                            padding: 20px;
+                            background: #f8f9fa;
+                            max-width: 650px;
+                            margin: 0 auto;
+                        }
+
+                        /* Widget Cards - Clean Light Design with Gray Background */
+                        .dd_preview_widget_card {
+                            background: white;
+                            border-radius: 10px;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                            border: 1px solid #e5e7eb;
+                            padding: 20px;
+                            min-height: 240px;
+                            position: relative;
+                            page-break-inside: avoid;
+                        }
+
+                        .dd_preview_widget_header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 16px;
+                            padding-bottom: 12px;
+                            border-bottom: 1px solid #f3f4f6;
+                            position: relative;
+                        }
+
+                        .dd_preview_widget_title {
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin: 0;
+                        }
+
+                        .dd_preview_widget_type {
+                            font-size: 10px;
+                            padding: 4px 10px;
+                            background: #eff6ff;
+                            color: #3b82f6;
+                            border-radius: 12px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .dd_preview_widget_content {
+                            min-height: 200px;
+                            position: relative;
+                        }
+
+                        /* KPI Display - Adjusted for Portrait */
+                        .dd_preview_kpi_display {
+                            text-align: center;
+                            padding: 30px 20px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 140px;
+                        }
+
+                        .dd_preview_kpi_value {
+                            font-size: 48px;
+                            font-weight: 700;
+                            color: #3b82f6;
+                            margin: 0;
+                            line-height: 1;
+                            letter-spacing: -0.03em;
+                        }
+
+                        .dd_preview_kpi_label {
+                            font-size: 12px;
+                            color: #9ca3af;
+                            margin-top: 16px;
+                            font-weight: 500;
+                        }
+
+                        /* Chart Container - Adjusted for Portrait */
+                        .dd_preview_chart_with_axis {
+                            position: relative;
+                            height: 200px;
+                            padding-left: 45px;
+                            padding-bottom: 40px;
+                        }
+
+                        .dd_preview_chart_container {
+                            position: relative;
+                            height: 100%;
+                            width: 100%;
+                        }
+
+                        /* Bar Chart - Fixed Rendering */
+                        .dd_preview_chart_bars {
+                            display: flex;
+                            align-items: flex-end;
+                            justify-content: space-evenly;
+                            height: 155px;
+                            gap: 20px;
+                            padding: 0 10px 0 0;
+                            border-left: 2px solid #d1d5db;
+                            border-bottom: 2px solid #d1d5db;
+                            position: relative;
+                            background: white;
+                        }
+
+                        .dd_preview_chart_bar {
+                            flex: 1;
+                            max-width: 60px;
+                            min-height: 20px;
+                            border-radius: 6px 6px 0 0;
+                            position: relative;
+                            background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+                        }
+
+                        .dd_preview_bar_value {
+                            position: absolute;
+                            top: -24px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #1f2937;
+                            white-space: nowrap;
+                            z-index: 10;
+                        }
+
+                        /* Axis Labels - Fixed Positioning */
+                        .dd_preview_x_axis {
+                            display: flex;
+                            justify-content: space-evenly;
+                            padding: 10px 10px 0 0;
+                            margin-left: 0;
+                            gap: 20px;
+                        }
+
+                        .dd_preview_x_label {
+                            font-size: 10px;
+                            color: #6b7280;
+                            text-align: center;
+                            font-weight: 500;
+                            flex: 1;
+                            max-width: 60px;
+                            word-wrap: break-word;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
+                            line-height: 1.2;
+                        }
+
+                        .dd_preview_y_axis {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            height: 155px;
+                            display: flex;
+                            flex-direction: column-reverse;
+                            justify-content: space-between;
+                            padding-right: 8px;
+                            width: 45px;
+                        }
+
+                        .dd_preview_y_label {
+                            font-size: 10px;
+                            color: #6b7280;
+                            text-align: right;
+                            font-weight: 500;
+                        }
+
+                        /* Grid Lines - More Visible */
+                        .dd_preview_chart_grid {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 10px;
+                            height: 155px;
+                            pointer-events: none;
+                            z-index: 1;
+                        }
+
+                        .dd_preview_grid_line {
+                            position: absolute;
+                            left: 0;
+                            right: 0;
+                            height: 1px;
+                            background: #e5e7eb;
+                        }
+
+                        /* Line Chart - Fixed Rendering */
+                        .dd_preview_chart_line {
+                            height: 155px;
+                            padding: 0 10px 0 0;
+                            border-left: 2px solid #d1d5db;
+                            border-bottom: 2px solid #d1d5db;
+                            position: relative;
+                            background: white;
+                        }
+
+                        .dd_preview_chart_line svg {
+                            position: relative;
+                            z-index: 10;
+                        }
+
+                        /* Text Display - Light Theme */
+                        .dd_preview_text_display {
+                            padding: 20px;
+                            background: #f9fafb;
+                            border-radius: 8px;
+                            border: 1px solid #e5e7eb;
+                        }
+
+                        .dd_preview_text_content {
+                            font-size: 14px;
+                            line-height: 1.6;
+                            color: #4b5563;
+                            white-space: pre-wrap;
+                        }
+
+                        /* No Data State */
+                        .dd_no_data {
+                            padding: 50px 20px;
+                            text-align: center;
+                            color: #9ca3af;
+                            font-size: 13px;
+                            background: #f9fafb;
+                            border-radius: 8px;
+                            border: 2px dashed #e5e7eb;
+                            font-weight: 500;
+                        }
+
+                        /* Print Optimization */
+                        @media print {
+                            body {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+
+                            .dd_preview_widgets_grid {
+                                page-break-inside: avoid;
+                            }
+
+                            .dd_preview_widget_card {
+                                page-break-inside: avoid;
+                            }
+                        }
+                    </style>
+
+                    <!-- LIGHT THEME LAYOUT -->
+                    <div class="dd_preview_fullscreen_overlay">
+                        <div class="dd_preview_hod">
+                            <!-- Header -->
+                            <div class="dd_preview_hod_header">
+                                <div class="dd_preview_hod_title_section">
+                                    <div class="dd_preview_hod_icon">🎯</div>
+                                    <div>
+                                        <h2 class="dd_preview_hod_title">
+                                            <t t-esc="o.name or 'Dashboard'"/>
+                                        </h2>
+                                        <p class="dd_preview_hod_subtitle">
+                                            <t t-esc="o.subtitle or 'Real-time monitoring interface'"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="dd_preview_hod_actions">
+                                    <button class="dd_preview_hod_btn dd_preview_hod_btn_active">This Term</button>
+                                    <button class="dd_preview_hod_btn">This Year</button>
+                                    <button class="dd_preview_hod_btn">Custom</button>
+                                </div>
+                            </div>
+
+                            <!-- Widgets Grid -->
+                            <div class="dd_preview_widgets_grid">
+                                <t t-foreach="items" t-as="widget">
+                                    <div class="dd_preview_widget_card">
+                                        <div class="dd_preview_widget_header">
+                                            <h3 class="dd_preview_widget_title">
+                                                <t t-esc="widget.name"/>
+                                            </h3>
+                                            <span class="dd_preview_widget_type">
+                                                <t t-esc="widget.type"/>
+                                            </span>
+                                        </div>
+
+                                        <div class="dd_preview_widget_content">
+                                            <!-- KPI Widget -->
+                                            <t t-if="widget.type == 'kpi'">
+                                                <div class="dd_preview_kpi_display">
+                                                    <div class="dd_preview_kpi_value">
+                                                        <t t-esc="widget.value_text or '0'"/>
+                                                    </div>
+                                                    <div class="dd_preview_kpi_label">
+                                                        Last updated: <t t-esc="time.strftime('%H:%M')"/>
+                                                    </div>
+                                                </div>
+                                            </t>
+
+                                            <!-- Chart Widget -->
+                                            <t t-if="widget.type == 'chart'">
+                                                <t t-set="chart_data" t-value="widget.get_chart_data()"/>
+                                                <t t-set="labels" t-value="chart_data.get('labels', [])"/>
+                                                <t t-set="values" t-value="chart_data.get('values', [])"/>
+
+                                                <!-- Bar Chart -->
+                                                <t t-if="widget.chart_type == 'bar' and values">
+                                                    <t t-set="max_val" t-value="max(values) or 1.0"/>
+                                                    <t t-set="y_max" t-value="int(max_val * 1.2)"/>
+                                                    <t t-set="y_step" t-value="y_max / 5.0"/>
+
+                                                    <div class="dd_preview_chart_with_axis">
+                                                        <!-- Y-Axis Labels -->
+                                                        <div class="dd_preview_y_axis">
+                                                            <t t-foreach="range(6)" t-as="i">
+                                                                <span class="dd_preview_y_label">
+                                                                    <t t-esc="int(i * y_step)"/>
+                                                                </span>
+                                                            </t>
+                                                        </div>
+
+                                                        <div class="dd_preview_chart_container">
+                                                            <!-- Grid Lines -->
+                                                            <div class="dd_preview_chart_grid">
+                                                                <div class="dd_preview_grid_line" style="top: 0%;"></div>
+                                                                <div class="dd_preview_grid_line" style="top: 20%;"></div>
+                                                                <div class="dd_preview_grid_line" style="top: 40%;"></div>
+                                                                <div class="dd_preview_grid_line" style="top: 60%;"></div>
+                                                                <div class="dd_preview_grid_line" style="top: 80%;"></div>
+                                                            </div>
+
+                                                            <!-- Bars -->
+                                                            <div class="dd_preview_chart_bars">
+                                                                <t t-foreach="values" t-as="val">
+                                                                    <t t-set="height_pct" t-value="(val / y_max) * 100 if y_max else 0"/>
+                                                                    <div class="dd_preview_chart_bar"
+                                                                         t-attf-style="height: #{height_pct}%;">
+                                                                        <span class="dd_preview_bar_value">
+                                                                            <t t-esc="int(val)"/>
+                                                                        </span>
+                                                                    </div>
+                                                                </t>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- X-Axis Labels -->
+                                                        <div class="dd_preview_x_axis">
+                                                            <t t-foreach="labels" t-as="label">
+                                                                <span class="dd_preview_x_label">
+                                                                    <t t-esc="label"/>
+                                                                </span>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
+
+                                                <!-- Line Chart -->
+                                                <t t-elif="widget.chart_type == 'line' and values">
+                                                    <t t-set="max_val" t-value="max(values) or 1.0"/>
+                                                    <t t-set="y_max" t-value="int(max_val * 1.2)"/>
+                                                    <t t-set="y_step" t-value="y_max / 5.0"/>
+
+                                                    <div class="dd_preview_chart_with_axis">
+                                                        <!-- Y-Axis Labels -->
+                                                        <div class="dd_preview_y_axis">
+                                                            <t t-foreach="range(6)" t-as="i">
+                                                                <span class="dd_preview_y_label">
+                                                                    <t t-esc="int(i * y_step)"/>
+                                                                </span>
+                                                            </t>
+                                                        </div>
+
+                                                        <div class="dd_preview_chart_container">
+                                                            <div class="dd_preview_chart_line">
+                                                                <!-- Grid Lines -->
+                                                                <div class="dd_preview_chart_grid">
+                                                                    <div class="dd_preview_grid_line" style="top: 0%;"></div>
+                                                                    <div class="dd_preview_grid_line" style="top: 20%;"></div>
+                                                                    <div class="dd_preview_grid_line" style="top: 40%;"></div>
+                                                                    <div class="dd_preview_grid_line" style="top: 60%;"></div>
+                                                                    <div class="dd_preview_grid_line" style="top: 80%;"></div>
+                                                                </div>
+
+                                                                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; position: relative; z-index: 10;" preserveAspectRatio="none">
+                                                                    <!-- Build points list -->
+                                                                    <t t-set="points_list" t-value="[]"/>
+                                                                    <t t-foreach="values" t-as="val">
+                                                                        <t t-set="x" t-value="(val_index / (len(values) - 1 if len(values) > 1 else 1)) * 100"/>
+                                                                        <t t-set="y" t-value="100 - ((val / y_max) * 100) if y_max else 50"/>
+                                                                        <t t-set="dummy" t-value="points_list.append(str(x) + ',' + str(y))"/>
+                                                                    </t>
+
+                                                                    <!-- Line -->
+                                                                    <polyline t-att-points="' '.join(points_list)"
+                                                                             fill="none"
+                                                                             stroke="#3b82f6"
+                                                                             stroke-width="2.5"/>
+
+                                                                    <!-- Data points -->
+                                                                    <t t-foreach="points_list" t-as="point">
+                                                                        <t t-set="coords" t-value="point.split(',')"/>
+                                                                        <circle t-att-cx="coords[0]"
+                                                                               t-att-cy="coords[1]"
+                                                                               r="3.5"
+                                                                               fill="white"
+                                                                               stroke="#3b82f6"
+                                                                               stroke-width="2"/>
+                                                                    </t>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- X-Axis Labels -->
+                                                        <div class="dd_preview_x_axis">
+                                                            <t t-foreach="labels" t-as="label">
+                                                                <span class="dd_preview_x_label">
+                                                                    <t t-esc="label"/>
+                                                                </span>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
+
+                                                <!-- No data -->
+                                                <t t-else="">
+                                                    <div class="dd_no_data">
+                                                        📊 No data available
+                                                    </div>
+                                                </t>
+                                            </t>
+
+                                            <!-- Text Widget -->
+                                            <t t-if="widget.type == 'text'">
+                                                <div class="dd_preview_text_display">
+                                                    <div class="dd_preview_text_content">
+                                                        <t t-esc="widget.value_text or 'Text Block'"/>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="report_dashboard" model="ir.actions.report">
+        <field name="name">Dashboard PDF</field>
+        <field name="model">dashboard.dashboard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">dashboard_designer.report_dashboard_template</field>
+        <field name="report_file">dashboard_designer.report_dashboard_template</field>
+        <field name="binding_model_id" ref="model_dashboard_dashboard"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">
+            'Dashboard_' + (object.name or 'Dashboard')
+        </field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+</odoo>
