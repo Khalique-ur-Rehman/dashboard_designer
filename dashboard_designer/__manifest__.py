@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 {
     "name": "Dashboard Designer",
     "summary": "Create beautiful dashboards with KPI cards, charts, themes and printable reports.",
@@ -23,6 +22,14 @@ This module allows users to build modern analytics dashboards inside Odoo withou
     "author": "Eaxeesoft Software House",
     "website": "https://eaxeesoft.com/",
     "license": "OPL-1",
+    
+    # --- PRICE CONFIGURATION ---
+    "price": 550.00,
+    "currency": "USD",
+    # ---------------------------
+
+    # Recommended: Add a support email or link for paid customers
+    "support": "support@eaxeesoft.com", 
 
     "depends": ["base", "web"],
 
