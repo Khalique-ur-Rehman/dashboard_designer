@@ -1,10 +1,8 @@
 {
     "name": "Dashboard Designer",
     "summary": "Create beautiful dashboards with KPI cards, charts, themes and printable reports.",
-
     "description": """
 Dashboard Designer
-
 Key Features
 ============
 - Create multiple dashboards
@@ -13,26 +11,21 @@ Key Features
 - Printable PDF dashboard report
 - Export dashboard as PNG
 - Dashboard home with summary tiles and cards
-
 This module allows users to build modern analytics dashboards inside Odoo without coding.
 """,
-
     "version": "18.0.1.0.0",
     "category": "Reporting",
     "author": "Eaxeesoft Software House",
     "website": "https://eaxeesoft.com/",
     "license": "OPL-1",
-    
+    "images": ["static/description/banner.png"],
+
     # --- PRICE CONFIGURATION ---
     "price": 550.00,
     "currency": "USD",
     # ---------------------------
-
-    # Recommended: Add a support email or link for paid customers
-    "support": "support@eaxeesoft.com", 
-
+    "support": "support@eaxeesoft.com",
     "depends": ["base", "web"],
-
     "data": [
         "security/ir.model.access.csv",
         "views/dashboard_views.xml",
@@ -40,7 +33,6 @@ This module allows users to build modern analytics dashboards inside Odoo withou
         "views/res_config_settings_views.xml",
         "report/dashboard_report.xml",
     ],
-
     "assets": {
         "web.assets_backend": [
             "dashboard_designer/static/src/css/dashboard_theme.css",
@@ -52,7 +44,6 @@ This module allows users to build modern analytics dashboards inside Odoo withou
             "dashboard_designer/static/src/xml/dashboard_home_templates.xml",
         ],
     },
-
     "installable": True,
     "application": True,
 }
