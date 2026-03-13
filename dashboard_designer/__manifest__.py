@@ -15,7 +15,7 @@ This module allows users to build modern analytics dashboards inside Odoo withou
 """,
     "version": "18.0.1.0.0",
     "category": "Reporting",
-    "author": "Eaxeesoft Software House",
+    "author": "eaxeesoft",
     "website": "https://eaxeesoft.com/",
     "license": "OPL-1",
     "images": ["static/description/banner.png"],
@@ -47,3 +47,4 @@ This module allows users to build modern analytics dashboards inside Odoo withou
     "installable": True,
     "application": True,
 }
+
