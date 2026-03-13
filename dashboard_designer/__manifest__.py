@@ -1,5 +1,5 @@
 {
-    "name": "Dashboard Designer",
+    "name": "Dashboard Studio",
     "summary": "Create beautiful dashboards with KPI cards, charts, themes and printable reports.",
     "description": """
 Dashboard Designer
@@ -47,4 +47,5 @@ This module allows users to build modern analytics dashboards inside Odoo withou
     "installable": True,
     "application": True,
 }
+
 
