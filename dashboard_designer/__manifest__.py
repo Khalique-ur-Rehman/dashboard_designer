@@ -18,7 +18,7 @@ This module allows users to build modern analytics dashboards inside Odoo withou
     "author": "eaxeesoft",
     "website": "https://eaxeesoft.com/",
     "license": "OPL-1",
-    "images": ["static/description/banner.png"],
+    "images": ["static/description/banner.gif"],
 
     # --- PRICE CONFIGURATION ---
     "price": 550.00,
